@@ -30,3 +30,5 @@ serviceWorkerRegistration.register({
     }
   },
 });
+
+serviceWorkerRegistration.enableNotification();

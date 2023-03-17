@@ -7,6 +7,7 @@ const isLocalhost = Boolean(
       /^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/
     )
 );
+
 export function register(config) {
   if (process.env.NODE_ENV === "production" && "serviceWorker" in navigator) {
     // The URL constructor is available in all browsers that support SW.
@@ -38,6 +39,7 @@ export function register(config) {
     });
   }
 }
+
 function registerValidSW(swUrl, config) {
   navigator.serviceWorker
     .register(swUrl)
@@ -109,6 +111,7 @@ function checkValidServiceWorker(swUrl, config) {
       );
     });
 }
+
 export function unregister() {
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.ready
@@ -118,5 +121,27 @@ export function unregister() {
       .catch((error) => {
         console.error(error.message);
       });
+  }
+}
+
+export function enableNotification() {
+  if (!window.Notification) {
+    console.log("El navegador no soporta las notificaciones");
+    return;
+  }
+
+  if (Notification.permission === "granted") {
+    new Notification("Hola mundo! -granted");
+  } else if (
+    Notification.permission !== "denied" ||
+    Notification.permission === "default"
+  ) {
+    Notification.requestPermission(function (permission) {
+      console.log("permiso", permission);
+      if (permission === "granted") {
+        console.log("entro al if");
+        new Notification("Hola mundo! desde la pregunat");
+      }
+    });
   }
 }
