@@ -1,10 +1,9 @@
-import React, { useCallback, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { Field, Form as FormFormik, Formik } from "formik";
 
 import {
   Box,
   Button,
-  Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
