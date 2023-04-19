@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { Field, Form as FormFormik, Formik } from "formik";
 
 import {
@@ -6,13 +6,17 @@ import {
   Flex,
   FormControl,
   FormErrorMessage,
-  //FormHelperText,
   FormLabel,
-  HStack,
   Input,
-  Radio,
-  RadioGroup,
 } from "@chakra-ui/react";
+import axios from "axios";
+
+type TValues = {
+  phrase: string;
+  translate: string;
+  deleted?: boolean;
+  time: any; // TO-DO change this for the type correct
+};
 
 const Form = () => {
   const validateSentence = (value: string) => {
@@ -39,29 +43,46 @@ const Form = () => {
     return error;
   };
 
+  const currentHours = useMemo(() => {
+    const date = new Date();
+    let hours = date.getHours();
+    const formateHours = hours > 9 ? hours : `0${hours}`;
+
+    const minutes = date.getMinutes();
+    return `${formateHours}:${minutes}`;
+  }, []);
+
   const initialValues = useMemo(
     () => ({
-      sentence: "",
-      translation: "",
-      remember: "1",
+      phrase: "",
+      translate: "",
+      time: currentHours,
     }),
-    []
+    [currentHours]
   );
+
+  const createNewPhrase = useCallback(async (values: any, actions: any) => {
+    try {
+      const body = {
+        phrase: values.phrase,
+        time: values.time,
+        translate: values.translate,
+        deleted: false,
+      };
+      await axios.post(`${process.env.REACT_APP_BASE_URL}/phrases`, body);
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
 
   return (
     <Formik
       initialValues={initialValues}
-      onSubmit={(values, actions) => {
-        console.log("values", values);
-        setTimeout(() => {
-          alert(JSON.stringify(values, null, 2));
-          actions.setSubmitting(false);
-        }, 1000);
-      }}
+      onSubmit={(values, actions) => createNewPhrase(values, actions)}
     >
       {(props) => (
         <FormFormik>
-          <Field name="sentence" validate={validateSentence}>
+          <Field name="phrase" validate={validateSentence}>
             {({ field, form }: any) => (
               <FormControl
                 isRequired
@@ -73,7 +94,7 @@ const Form = () => {
               </FormControl>
             )}
           </Field>
-          <Field name="translation" validate={validateTranslation}>
+          <Field name="translate" validate={validateTranslation}>
             {({ field, form }: any) => (
               <FormControl
                 isRequired
@@ -90,46 +111,41 @@ const Form = () => {
               </FormControl>
             )}
           </Field>
-          <Field name="remember" validate={validateRemember}>
-            {({ field, form }: any) => (
-              <FormControl
-                as="fieldset"
-                isRequired
-                isInvalid={form.errors.remember && form.touched.remember}
-                mt="30px"
-              >
-                <FormLabel as="legend" fontSize={["14px", "16px"]}>
-                  Remember
-                </FormLabel>
-                <RadioGroup {...field}>
-                  <HStack spacing="10px">
-                    <Radio size={["sm", "md"]} value="1">
-                      Every 1 hours
-                    </Radio>
-                    <Radio size={["sm", "md"]} value="3">
-                      Every 3 hours
-                    </Radio>
-                    <Radio size={["sm", "md"]} value="5">
-                      Every 5 hours
-                    </Radio>
-                  </HStack>
-                </RadioGroup>
-                {/*<FormHelperText>Select only if you're a fan.</FormHelperText>*/}
-                <FormErrorMessage>{form.errors.remember}</FormErrorMessage>
-              </FormControl>
-            )}
+          <Field name="time" validate={validateRemember}>
+            {({ field, form }: any) => {
+              return (
+                <FormControl
+                  as="fieldset"
+                  isRequired
+                  isInvalid={form.errors.time && form.touched.time}
+                  mt="30px"
+                >
+                  <FormLabel as="legend" fontSize={["14px", "16px"]}>
+                    Remember
+                  </FormLabel>
+                  <Input
+                    {...field}
+                    placeholder="Select Time"
+                    size="md"
+                    type="time"
+                  />
+
+                  <FormErrorMessage>{form.errors.time}</FormErrorMessage>
+                </FormControl>
+              );
+            }}
           </Field>
           <Flex justifyContent="flex-end" mt="30px">
             <Button
               bg="#ED8936"
               size="sm"
               m="5px"
+              isLoading={props.isSubmitting}
+              type="submit"
+              loadingText="Submitting"
               _hover={{
                 bg: "#DD6B20",
               }}
-              mt={4}
-              isLoading={props.isSubmitting}
-              type="submit"
             >
               Submit
             </Button>

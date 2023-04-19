@@ -1,4 +1,4 @@
-import React from "react";
+import { useCallback, useMemo } from "react";
 import {
   CardBody,
   Card as CardChakra,
@@ -10,33 +10,69 @@ import {
   CardFooter,
   ButtonGroup,
   Button,
+  Flex,
+  TagLeftIcon,
+  TagLabel,
+  Tag,
 } from "@chakra-ui/react";
+import { useNavigate } from "react-router";
+import { FaStopwatch } from "react-icons/fa";
+import axios from "axios";
 
 type PropsCard = {
-  sentence: string;
-  translation: string;
+  updateListPhrase: (phrase_id: any) => void;
+  phrase: string;
+  translate: string;
+  phrase_id: string;
+  time: any;
 };
 
-const Card = ({ sentence, translation }: PropsCard) => {
+const Card = ({
+  phrase,
+  translate,
+  phrase_id,
+  time,
+  updateListPhrase,
+}: PropsCard) => {
+  const navigate = useNavigate();
+
+  const handleEditPhrase = useCallback(() => {
+    navigate(`/edit/${phrase_id}`);
+  }, [navigate, phrase_id]);
+
+  const handleDeletePhrase = useCallback(async () => {
+    try {
+      await axios.delete(
+        `${process.env.REACT_APP_BASE_URL}/phrases/${phrase_id}`
+      );
+      updateListPhrase(phrase_id);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [updateListPhrase, phrase_id]);
+
+  const formatTime = useMemo(() => {
+    return Number(time.slice(0, 2)) > 12
+      ? `${time.slice(0, 5)} PM`
+      : `${time.slice(0, 5)} AM`;
+  }, [time]);
+
   return (
-    <CardChakra
-      bg="yellow.50"
-      m="7px"
-      w="100%"
-      maxW="330px"
-      minW="330px"
-      //_hover={{
-      //  bg: "yellow.100",
-      //}}
-    >
+    <CardChakra bg="yellow.50" m="7px" w="100%" maxW="330px" minW="330px">
       <CardBody>
         <Stack divider={<StackDivider borderColor="orange.300" />} spacing="4">
           <Box>
-            <Heading size="xs" color="orange.500">
-              Sentence
-            </Heading>
+            <Flex justifyContent="space-between" alignItems="center">
+              <Heading size="xs" color="orange.500">
+                Sentence
+              </Heading>
+              <Tag size="sm" variant="subtle" colorScheme="orange.500">
+                <TagLeftIcon boxSize="12px" as={FaStopwatch} />
+                <TagLabel>{formatTime}</TagLabel>
+              </Tag>
+            </Flex>
             <Text pt="2" fontSize="md">
-              {sentence}
+              {phrase}
             </Text>
           </Box>
           <Box>
@@ -44,7 +80,7 @@ const Card = ({ sentence, translation }: PropsCard) => {
               Translation
             </Heading>
             <Text pt="2" fontSize="md">
-              {translation}
+              {translate}
             </Text>
           </Box>
         </Stack>
@@ -60,10 +96,12 @@ const Card = ({ sentence, translation }: PropsCard) => {
             _hover={{
               bg: "orange.200",
             }}
+            onClick={handleEditPhrase}
           >
             Edit
           </Button>
           <Button
+            onClick={handleDeletePhrase}
             variant="solid"
             color="red"
             size="xs"

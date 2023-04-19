@@ -76,6 +76,12 @@ function registerValidSW(swUrl, config) {
           }
         };
       };
+
+      registration.pushManager.getSubscription().then((sub) => {
+        if (!sub) {
+          enableNotification(registration);
+        }
+      });
     })
     .catch((error) => {
       console.error("Error during service worker registration:", error);
@@ -124,24 +130,60 @@ export function unregister() {
   }
 }
 
-export function enableNotification() {
+export const getPublicKey = () => {
+  // TO-DO
+  return fetch(`${process.env.REACT_APP_BASE_URL}/notifications/key`)
+    .then((resp) => resp.arrayBuffer())
+    .then((key) => new Uint8Array(key));
+};
+
+export const makeSubscription = (registerSW) => {
+  getPublicKey().then((key) => {
+    registerSW.pushManager
+      .subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: key,
+      })
+      .then((res) => res.toJSON())
+      .then((subscription) => {
+        fetch(`${process.env.REACT_APP_BASE_URL}/notifications/subscription`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            subscription: subscription,
+            user_id: "1", // TO-DO
+          }),
+        })
+          //.then((resp) => console.log("[resp]: ", resp))
+          .catch((error) => console.log(error));
+      });
+  });
+};
+
+export function enableNotification(registerSW) {
   if (!window.Notification) {
-    console.log("El navegador no soporta las notificaciones");
     return;
   }
 
   if (Notification.permission === "granted") {
-    new Notification("Hola mundo! -granted");
+    makeSubscription(registerSW);
   } else if (
     Notification.permission !== "denied" ||
+    // @ts-ignore
     Notification.permission === "default"
   ) {
     Notification.requestPermission(function (permission) {
-      console.log("permiso", permission);
       if (permission === "granted") {
-        console.log("entro al if");
-        new Notification("Hola mundo! desde la pregunat");
+        makeSubscription(registerSW);
       }
     });
   }
+}
+
+export function deleteSubscription(registerSW) {
+  registerSW.pushManager.getSubscription().then((subs) => {
+    subs.unsubscribe().then(() => {
+      console.log("se cancelo la subscription");
+    });
+  });
 }

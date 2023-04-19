@@ -14,6 +14,7 @@ precacheAndRoute(self.__WB_MANIFEST);
 // para más info: https://cra.link/PWA
 
 const fileExtensionRegexp = new RegExp("/[^/?]+\\.[^/]+$");
+
 registerRoute(
   // Return false to exempt requests from being fulfilled by index.html.
   ({ request, url }) => {
@@ -50,4 +51,36 @@ self.addEventListener("message", (event) => {
   if (event.data && event.data.type === "SKIP_WAITING") {
     self.skipWaiting();
   }
+});
+
+self.addEventListener("push", (event) => {
+  const dataText = event.data.text();
+  const data = JSON.parse(dataText || "{}");
+
+  const title = data.title;
+  const options = {
+    body: data.body,
+    icon: "logo192.png",
+    badge: "logo192.png",
+    vibrate: [
+      125, 75, 125, 275, 200, 275, 125, 75, 125, 275, 200, 600, 200, 600,
+    ],
+    openUrl: "/",
+    actions: [
+      {
+        action: "delete",
+        title: "Delete",
+        icon: "logo192.png",
+      },
+    ],
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener("notificationclick", (event) => {
+  const notification = event.notification;
+  const action = event.action;
+
+  notification.close();
 });
