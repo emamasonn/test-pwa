@@ -11,13 +11,6 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 
-type TValues = {
-  phrase: string;
-  translate: string;
-  deleted?: boolean;
-  time: any; // TO-DO change this for the type correct
-};
-
 const Form = () => {
   const validateSentence = (value: string) => {
     let error;
