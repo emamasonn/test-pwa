@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useState } from "react";
-import axios from "axios";
+import { useCallback, useEffect, useState } from "react";
 import { CircularProgress, Flex } from "@chakra-ui/react";
+import axios from "axios";
 import Card from "../components/Card";
 
 const Home = () => {

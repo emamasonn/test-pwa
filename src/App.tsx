@@ -1,12 +1,9 @@
-import React from "react";
-
 import { Box, ChakraProvider, theme } from "@chakra-ui/react";
-
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Home from "./pages/home";
-import Create from "./pages/create";
-import Edit from "./pages/edit";
 import Header from "./components/Header";
+import Home from "./pages/Home";
+import Create from "./pages/Create";
+import Edit from "./pages/Edit";
 
 function App() {
   return (

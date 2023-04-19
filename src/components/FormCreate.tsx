@@ -2,6 +2,7 @@ import React, { useCallback, useMemo } from "react";
 import { Field, Form as FormFormik, Formik } from "formik";
 
 import {
+  Box,
   Button,
   Flex,
   FormControl,
@@ -128,7 +129,7 @@ const Form = () => {
               );
             }}
           </Field>
-          <Flex justifyContent="flex-end" mt="30px">
+          <Box display="flex" justifyContent="flex-end" mt="30px">
             <Button
               bg="#ED8936"
               size="sm"
@@ -142,7 +143,7 @@ const Form = () => {
             >
               Submit
             </Button>
-          </Flex>
+          </Box>
         </FormFormik>
       )}
     </Formik>
