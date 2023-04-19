@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { Flex, Button, IconButton, Image } from "@chakra-ui/react";
+import { Link } from "react-router-dom";
 
 import homeIcon from "../icons/home.png";
 
